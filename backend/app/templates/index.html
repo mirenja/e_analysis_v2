@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Stacked Area Chart</title>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+
+</head>
+<body>
+  <div id="container">
+    <h1>Visualization Dashboard</h1>
+    <div id="chart"></div>
+  </div>
+
+  <script>
+     // Retrieve the data passed from Flask
+     var data = JSON.parse('{{ df_daily|safe }}');
+
+    // Convert the date strings to JavaScript Date objects
+    var parseDate = d3.timeParse("%Y-%m-%d");
+    Object.keys(data).forEach(function(key) {
+      data[key] = Object.entries(data[key]).map(function([date, value]) {
+        return [parseDate(date), value];
+      });
+    });
+
+    // Set up the dimensions and margins for the chart
+    var margin = { top: 20, right: 30, bottom: 30, left: 60 },
+        width = 800 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+    // Create an SVG container for the chart
+    var svg = d3.select("#chart")
+      .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Set the x and y scales
+    var x = d3.scaleTime()
+      .domain(d3.extent(data[Object.keys(data)[0]], function(d) { return d[0]; }))
+      .range([0, width]);
+
+    var y = d3.scaleLinear()
+      .domain([0, d3.max(data[Object.keys(data)[0]], function(d) { return d[1]; })])
+      .range([height, 0]);
+
+    // Define the area generator
+    var area = d3.area()
+      .x(function(d) { return x(d[0]); })
+      .y0(function(d) { return y(d[0]); })
+      .y1(function(d) { return y(d[1]); });
+          // Generate the stacked area chart
+    Object.keys(data).forEach(function(key) {
+      svg.append("path")
+        .datum(data[key])
+        .attr("class", "area")
+        .attr("d", area);
+    });
+
+    // Add x-axis
+    svg.append("g")
+       .attr("transform", "translate(0," + height + ")")
+       .call(d3.axisBottom(x));
+
+    // Add y-axis
+    svg.append("g")
+       .call(d3.axisLeft(y));
+
+    // Add chart title
+    svg.append("text")
+       .attr("x", (width / 2))
+       .attr("y", 0 - (margin.top / 2))
+       .attr("text-anchor", "middle")
+       .style("font-size", "16px")
+       .text("Daily Generation by Source");
+
+    // Add legend
+    var legend = svg.append("g")
+                    .attr("class", "legend")
+                    .attr("transform", "translate(0, -20)");
+
+    Object.keys(data).forEach(function(key, i) {
+      legend.append("rect")
+            .attr("x", width - 80)
+            .attr("y", i * 20)
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", "steelblue"); // Change color to the desired color or use a color scheme
+
+      legend.append("text")
+            .attr("x", width - 65)
+            .attr("y", i * 20 + 9)
+            .attr("dy", ".35em")
+            .style("font-size", "10px")
+            .text(key);
+    });
+  </script>
+</body>
+</html>
+
+
