@@ -37,7 +37,7 @@ def treat_missingness(df_replaced):
     df_nullity = df_replaced.isnull()
     mode_imputer = SimpleImputer(strategy='most_frequent')
     df_replaced.iloc[:, :] = mode_imputer.fit_transform(df_replaced)
-    print(df_replaced.isna().sum())
+    #print(df_replaced.isna().sum())
     return df_replaced
 
 #calculate the aggregated daily
@@ -50,6 +50,7 @@ def aggregated(df_missingness):
     #picked the numeric columns because i kept getting an error with .mean method from germany col
     numeric_columns = df_missingness.select_dtypes(include=[np.number]).columns
     df_daily = df_missingness[numeric_columns].resample('D').mean()
+    
     df_monthly = df_daily.resample('M').mean()
     # aggregate = {'daily': df_daily, 'monthly': df_monthly}
     return df_daily
@@ -75,6 +76,51 @@ def process_data(df):
     
     
     return df_daily
+
+
+####Bonus task
+
+renewable_sources = ['Biomass', 'Dam Hydro', 'Geothermal', 'Other renewables',
+                     'Pumped storage generation', 'Run-of-River Hydro',
+                     'Solar', 'Wind offshore', 'Wind onshore']
+
+non_renewable_sources = ['Hard Coal', 'Lignite', 'Natural Gas', 'Non-renewable waste',
+                     'Nuclear', 'Oil', 'Other fossil fuel']
+
+
+
+# df_replaced_mode = df_missingness
+# renewable_generation = df_replaced[df_replaced_mode.columns[df_replaced_mode.columns.isin(renewable_sources)]]
+# non_renewable_generation = df_replaced_mode[df_replaced_mode.columns[df_replaced_mode.columns.isin(non_renewable_sources)]]
+
+# print(renewable_generation.head())
+# print(df_replaced_mode.columns)
+# Hourly electricity generation
+
+def calculate_hourly_generation(df, renewable_sources, non_renewable_sources):
+    hourly_table = pd.pivot_table(df, index=df.index.hour,
+                                  values=renewable_sources+non_renewable_sources,
+                                  aggfunc='sum')
+    return hourly_table
+
+def calculate_daily_generation(df, renewable_sources, non_renewable_sources):
+    daily_table = pd.pivot_table(df, index=df.index.date,
+                                 values=renewable_sources+non_renewable_sources,
+                                 aggfunc='sum')
+    return daily_table
+
+def calculate_monthly_generation(df, renewable_sources, non_renewable_sources):
+    monthly_table = pd.pivot_table(df, index=df.index.to_period('M'),
+                                   values=renewable_sources+non_renewable_sources,
+                                   aggfunc='sum')
+    return monthly_table
+
+def calculate_percentage_of_total(table):
+    table_percent = (table / table.sum()) * 100
+    return table_percent
+
+
+
     
 
 

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Stacked Area Chart</title>
+  <style>
+    .area {
+      fill-opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <svg id="chart" width="600" height="400"></svg>
+  {{ df_daily }}
+
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script>
+    var data =JSON.parse{{ df_daily | safe }};
+
+    // Parse the dates
+    var parseDate = d3.timeParse("%Y-%m-%d");
+    data.forEach(function(d) {
+      d.date_id = parseDate(d.date_id);
+    });
+
+    // Set up the SVG
+    var svg = d3.select("#chart"),
+        margin = { top: 20, right: 30, bottom: 30, left: 50 },
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Set up the scales
+    var x = d3.scaleTime()
+      .domain(d3.extent(data, function(d) { return d.date_id; }))
+      .range([0, width]);
+
+    var y = d3.scaleLinear()
+      .domain([0, d3.max(data, function(d) { return d3.sum(d3.values(d), function(v) { return v; }); })])
+      .range([height, 0]);
+
+    var stack = d3.stack()
+      .keys(Object.keys(data[0]).filter(function(key) { return key !== "date_id"; }))
+      .order(d3.stackOrderNone)
+      .offset(d3.stackOffsetNone);
+
+    var series = stack(data);
+
+    // Define the color scale
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+    // Set up the area generator
+    var area = d3.area()
+      .x(function(d) { return x(d.data.date_id); })
+      .y0(function(d) { return y(d[0]); })
+      .y1(function(d) { return y(d[1]); });
+
+    // Append the areas
+    g.selectAll(".area")
+      .data(series)
+      .enter().append("path")
+        .attr("class", "area")
+        .style("fill", function(d) { return color(d.key); })
+        .attr("d", area);
+
+    // Add the X axis
+    g.append("g")
+      .attr("class", "axis axis-x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+    // Add the Y axis
+    g.append("g")
+      .attr("class", "axis axis-y")
+      .call(d3.axisLeft(y).ticks(5));
+
+    // Add a legend
+    var legend = g.selectAll(".legend")
+      .data(series)
+      .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+    legend.append("rect")

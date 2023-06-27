@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from .services.agg_generation import process_data
 from io import StringIO
+from os import environ
 
 
 
@@ -32,9 +33,6 @@ def fetch_data_from_api(api_key, dataset, date_from, date_to):
         df = pd.DataFrame(data["data"])
         df.columns = data["columns"]
 
-        # print("Column names:", df.columns) 
-        # df.set_index("date_id", inplace=True)
-
         return df
     
     except requests.RequestException as e:
@@ -46,7 +44,7 @@ def fetch_data_from_api(api_key, dataset, date_from, date_to):
 
     #define api params
 base_url = "https://api.agora-energy.org/publicdata/api"
-api_key= "agora_api_DCB21HjFwwK%wyhHyD1%HU4w22F6zw.9jh&zkOkj1H"
+api_key= environ.get('API_KEY') 
 dataset = "task_generation_h"
 date_from = "2022-10-01"
 date_to = "2022-12-31"
@@ -54,6 +52,7 @@ date_to = "2022-12-31"
 
 # Fetch data from API
 df = fetch_data_from_api(api_key, dataset, date_from, date_to)
+
 # print(df.info())
 # print(df.head())
 
@@ -85,8 +84,8 @@ def index():
     #convert to csv
     # df_daily_csv = df_daily.reset_index().to_csv(index=False)
     # df_monthly_data = df_monthly.reset_index().to_dict(orient='records')
-
-    df_daily_json = df_daily.to_json(orient='columns')
+    df_daily.reset_index(inplace=True)
+    df_daily_json = df_daily.to_json(orient='records')
     # df_monthly_json = df_monthly.to_json(orient='columns')
 
 
