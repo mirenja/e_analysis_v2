@@ -20,8 +20,9 @@ Project uses a Python virtual environment (venv) to manage dependencies.
 and  environment variables  BASE_URL, API_KEY.
 
 ## Data
-Input: Hourly electricity generation by fuel type.
-Output:
+* Input: Hourly electricity generation by fuel type.
+
+* Output:
 Cleaned hourly data: germany_hourly_by_fuel_cleaned.csv
 Daily & monthly aggregates: germany_daily_by_fuel_MWh.csv, germany_monthly_by_fuel_MWh.csv
 Renewable vs non-renewable: germany_hourly_renewable_nonrenewable.csv,germany_daily_renewable_nonrenewable.csv,germany_monthly_renewable_nonrenewable.csv,germany_hourly_long.csv
