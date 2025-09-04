@@ -14,3 +14,5 @@ dataprocessing functions are under backend/app/visualization/services/agg_genera
 API call is on routes.py which forwads the json file to the FE for visualization
 
 The running FE is under backend/app/templates/index.html inline with flask folder structure, but there is a separate folder duplicate
+
+## best representation is in thought process.pdf
