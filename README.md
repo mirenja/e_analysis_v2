@@ -24,8 +24,7 @@ Input: Hourly electricity generation by fuel type.
 Output:
 Cleaned hourly data: germany_hourly_by_fuel_cleaned.csv
 Daily & monthly aggregates: germany_daily_by_fuel_MWh.csv, germany_monthly_by_fuel_MWh.csv
-Renewable vs non-renewable: germany_hourly_renewable_nonrenewable.csv, germany_daily_renewable_nonrenewable.csv, germany_monthly_renewable_nonrenewable.csv
-Long format hourly data: germany_hourly_long.csv
+Renewable vs non-renewable: germany_hourly_renewable_nonrenewable.csv,germany_daily_renewable_nonrenewable.csv,germany_monthly_renewable_nonrenewable.csv,germany_hourly_long.csv
 Figures: figure_bar_comparison_sources_GWh.png,figure_stacked_area_daily_GWh.png, figure_renewable_vs_nonrenewable_Oct_Dec_GWh.png
 
 ## Setup
@@ -39,3 +38,4 @@ Figures: figure_bar_comparison_sources_GWh.png,figure_stacked_area_daily_GWh.png
     BASE_URL=<base_url>
     API_KEY=<api_key>
 * Run the Jupyter Notebook
+
